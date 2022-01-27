@@ -29,4 +29,5 @@ export GOOGLE_APPLICATION_CREDENTIALS="/home/canovasjm/.google/credentials/googl
 ```  
 
 Then authenticate:  
+
 `gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS`  
