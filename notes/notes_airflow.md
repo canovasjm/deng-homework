@@ -59,3 +59,15 @@ Open browser and go to `localhost:8080`. Log in with `Username: airflow` and `Pa
 Once finished, shutdown the services with:   
 
 `docker-compose down`
+
+To stop and delete containers, delete volumes with database data, and download images, run:
+
+```
+docker-compose down --volumes --rmi all
+```
+
+or
+
+```
+docker-compose down --volumes --remove-orphans
+```  
