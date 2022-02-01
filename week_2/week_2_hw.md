@@ -4,6 +4,7 @@
 
 **A:** 2019-01-01  
 
+
 ## Question 2: Frequency for the Yellow taxi data (1 point)  
 
 **Q:** How often do we need to run this DAG?  
@@ -13,7 +14,36 @@
 
 ## Question 3: DAG for FHV Data (2 points)  
 
+**Q:** How many DAG runs are green for data in 2019 after finishing everything?  
+
+**A:**     
+
+```bash
+# log into scheduler
+docker exec -it <scheduler-ID> bash
+
+# perform the backfill for yellow taxi
+airflow dags backfill -s 2019-01-01 -e 2021-01-01 yellow_ingestion_gcs_dag
+
+# perform the backfill for fhv taxi
+airflow dags backfill -s 2019-01-01 -e 2019-12-01 fhv_ingestion_gcs_dag
+airflow dags backfill -s 2020-02-01 -e 2021-01-01 fhv_ingestion_gcs_dag
+
+# log into worker to see the downloaded files
+docker exec -it <worker-ID> bash 
+```
 
 
-## Question 4: DAG for Zones (2 points)  
+## Question 4: DAG for Zones (2 points)   
 
+**Q:** Create the final DAG, for Zones. How often does it need to run?   
+
+**A:** Once  
+
+```bash
+# log into scheduler
+docker exec -it <scheduler-ID> bash
+
+# perform the run for zones
+airflow dags test zone_ingestion_gcs_dag 2022-01-31
+```  
