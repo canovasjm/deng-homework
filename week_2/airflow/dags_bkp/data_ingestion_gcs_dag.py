@@ -1,8 +1,5 @@
-# required libraries
 import os
 import logging
-
-from datetime import datetime
 
 from airflow import DAG
 from airflow.utils.dates import days_ago
@@ -14,20 +11,16 @@ from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateExte
 import pyarrow.csv as pv
 import pyarrow.parquet as pq
 
-# read environment variables
 PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 BUCKET = os.environ.get("GCP_GCS_BUCKET")
-BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'trips_data_all')
 
-# read files and define paths
-dataset_file = "yellow_tripdata_{{ execution_date.strftime(\'%Y-%m\') }}.csv"
+dataset_file = "yellow_tripdata_2021-06.csv"
 dataset_url = f"https://s3.amazonaws.com/nyc-tlc/trip+data/{dataset_file}"
 path_to_local_home = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
 parquet_file = dataset_file.replace('.csv', '.parquet')
-table_name_template = 'yellow_taxi_{{ execution_date.strftime(\'%Y_%m\') }}'
+BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'trips_data_all')
 
 
-# define auxiliary functions
 def format_to_parquet(src_file):
     if not src_file.endswith('.csv'):
         logging.error("Can only accept source files in CSV format, for the moment")
@@ -36,7 +29,7 @@ def format_to_parquet(src_file):
     pq.write_table(table, src_file.replace('.csv', '.parquet'))
 
 
-# takes 20 mins, at an upload speed of 800kbps. Faster if your internet has a better upload speed
+# NOTE: takes 20 mins, at an upload speed of 800kbps. Faster if your internet has a better upload speed
 def upload_to_gcs(bucket, object_name, local_file):
     """
     Ref: https://cloud.google.com/storage/docs/uploading-objects#storage-upload-object-python
@@ -57,29 +50,27 @@ def upload_to_gcs(bucket, object_name, local_file):
     blob = bucket.blob(object_name)
     blob.upload_from_filename(local_file)
 
-# set default arguments for the DAG
+
 default_args = {
     "owner": "airflow",
-    #"start_date": days_ago(1),
-    "start_date": datetime(2019,1,1),
-    "end_data": datetime(2021,1,1),
+    "start_date": days_ago(1),
     "depends_on_past": False,
     "retries": 1,
 }
 
-# DAG declaration - using a Context Manager (an implicit way)
+# NOTE: DAG declaration - using a Context Manager (an implicit way)
 with DAG(
     dag_id="data_ingestion_gcs_dag",
-    schedule_interval="@monthly",
+    schedule_interval="@daily",
     default_args=default_args,
     catchup=False,
     max_active_runs=1,
-    tags=['deng'],
+    tags=['dtc-de'],
 ) as dag:
 
     download_dataset_task = BashOperator(
         task_id="download_dataset_task",
-        bash_command=f"curl -sSLf {dataset_url} > {path_to_local_home}/{dataset_file}"
+        bash_command=f"curl -sS {dataset_url} > {path_to_local_home}/{dataset_file}"
     )
 
     format_to_parquet_task = PythonOperator(
@@ -90,7 +81,7 @@ with DAG(
         },
     )
 
-    # Homework - research and try XCOM to communicate output values between 2 tasks/operators
+    # TODO: Homework - research and try XCOM to communicate output values between 2 tasks/operators
     local_to_gcs_task = PythonOperator(
         task_id="local_to_gcs_task",
         python_callable=upload_to_gcs,
@@ -107,7 +98,7 @@ with DAG(
     #         "tableReference": {
     #             "projectId": PROJECT_ID,
     #             "datasetId": BIGQUERY_DATASET,
-    #             "tableId": table_name_template,
+    #             "tableId": "external_table",
     #         },
     #         "externalDataConfiguration": {
     #             "sourceFormat": "PARQUET",
@@ -116,6 +107,13 @@ with DAG(
     #     },
     # )
 
+    remove_files_task = BashOperator(
+        task_id="remove_files_task",
+        bash_command=f"cd /opt/airflow && rm {dataset_file} {parquet_file}"
+    )
+
+    #download_dataset_task >> format_to_parquet_task >> local_to_gcs_task
+
+    download_dataset_task >> format_to_parquet_task >> local_to_gcs_task >> remove_files_task
 
     #download_dataset_task >> format_to_parquet_task >> local_to_gcs_task >> bigquery_external_table_task
-    download_dataset_task >> format_to_parquet_task >> local_to_gcs_task

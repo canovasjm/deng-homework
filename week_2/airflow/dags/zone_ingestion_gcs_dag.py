@@ -26,7 +26,6 @@ path_to_local_home = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
 parquet_file = dataset_file.replace('.csv', '.parquet')
 table_name_template = 'zone_lookup'
 
-
 # define auxiliary functions
 def format_to_parquet(src_file):
     if not src_file.endswith('.csv'):
@@ -34,7 +33,6 @@ def format_to_parquet(src_file):
         return
     table = pv.read_csv(src_file)
     pq.write_table(table, src_file.replace('.csv', '.parquet'))
-
 
 # takes 20 mins, at an upload speed of 800kbps. Faster if your internet has a better upload speed
 def upload_to_gcs(bucket, object_name, local_file):
@@ -116,10 +114,10 @@ with DAG(
     #     },
     # )
 
-    # remove_files_task = BashOperator(
-    #     task_id="remove_files_task",
-    #     bash_command="rm yellow_*.csv yellow_*.parquet"
-    # )
+    remove_files_task = BashOperator(
+        task_id="remove_files_task",
+        bash_command=f"cd /opt/airflow && rm {dataset_file} {parquet_file}"
+    )
 
     #download_dataset_task >> format_to_parquet_task >> local_to_gcs_task >> bigquery_external_table_task >> remove_files_task
-    download_dataset_task >> format_to_parquet_task >> local_to_gcs_task
+    download_dataset_task >> format_to_parquet_task >> local_to_gcs_task >> remove_files_task
