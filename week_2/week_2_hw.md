@@ -16,7 +16,10 @@
 
 **Q:** How many DAG runs are green for data in 2019 after finishing everything?  
 
-**A:**     
+**A:** 12    
+
+While one is able to forward Airflow's GUI container port using a regular terminal, I decided for another approach learned on this [tutorial](https://www.youtube.com/watch?v=OXOiUeHOQ-0&list=PLq4roe1E45w9Vf4iLoCmFmd-t_DtfxVCP) by [@Coder2j](https://twitter.com/Coder2j):     
+
 
 ```bash
 # log into scheduler
