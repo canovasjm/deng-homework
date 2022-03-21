@@ -16,12 +16,22 @@
 
 **A:**
 
+- [ ] partitions
+- [ ] consumer.group.id
+- [x] replication
+- [ ] cleanup.policy
+
 
 ## Question 3   
 
 **Q:** What is a compact topic? *  
 
 **A:**
+
+- [ ] Topic which deletes messages after 7 days
+- [ ] Topic which compact messages based on value
+- [ ] Topic which compact messages based on Key
+- [ ] All topics are compact topic
 
 
 ## Question 4   
@@ -30,12 +40,21 @@
 
 **A:**
 
+- [ ] Making consumer producer independent of each other
+- [ ] Provide possibility to update messages without breaking change
+- [ ] Allow control when producing messages
+- [ ] Share message information with consumers
+ 
 
 ## Question 5    
 
 **Q:** Which configuration should a producer set to provide guarantee that a message is never lost *   
 
 **A:**
+
+ack=0
+ack=1
+ack=all
 
 
 ## Question 6   
@@ -44,12 +63,22 @@
 
 **A:**
 
+Beginning in topic
+Latest in topic
+From a particular offset
+From a particular timestamp
+ 
 
 ## Question 7   
 
 **Q:** What key structure is seen when producing messages via 10 minutes Tumbling window in Kafka stream *
 
 **A:**
+
+Key
+[Key, Start Timestamp]
+[Key, Start Timestamp + 10 mins, Start Timestamp]
+[Key, Start Timestamp, Start Timestamp + 10 mins]
 
 
 ## Question 8    
@@ -58,12 +87,20 @@
 
 **A:**
 
+Partitions get assigned to KStream
+Efficient joins
+Network bandwidth reduction
+
 
 ## Question 9   
 
 **Q:** When joining KTable with KTable partitions should be *  
 
 **A:**
+
+Different
+Same
+Does not matter
 
 
 ## Question 10   
@@ -72,3 +109,6 @@
 
 **A:**
 
+Different
+Same
+Does not matter
