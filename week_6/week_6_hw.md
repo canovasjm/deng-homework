@@ -30,14 +30,14 @@
 
 - [ ] Topic which deletes messages after 7 days
 - [ ] Topic which compact messages based on value
-- [ ] Topic which compact messages based on Key
+- [x] Topic which compact messages based on Key
 - [ ] All topics are compact topic
 
 
 ## Question 4   
 
 **Q:** Role of schemas in Kafka *  
-
+    
 **A:**
 
 - [ ] Making consumer producer independent of each other
@@ -52,9 +52,9 @@
 
 **A:**
 
-ack=0
-ack=1
-ack=all
+- [ ] ack=0
+- [ ] ack=1
+- [x] ack=all
 
 
 ## Question 6   
